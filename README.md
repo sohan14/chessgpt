@@ -46,3 +46,12 @@ If PR creation fails in an automation environment, the usual causes are:
 - the token used by automation lacks PR scopes.
 
 In those cases you can still use a direct commit-and-merge flow (no PR) by merging the working branch into your target branch in Git.
+
+## How to use the current app
+
+This build is an **interactive demo shell** (not full engine implementation yet):
+- Tap **Analyze**, **Import PGN**, or **Coach** buttons at the top to switch the current focus area.
+- Tap any roadmap card to select it.
+- The **Status** panel updates to show what you selected.
+
+These controls make the UI clickable now while backend chess logic is implemented incrementally.
