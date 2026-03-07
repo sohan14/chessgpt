@@ -49,9 +49,9 @@ In those cases you can still use a direct commit-and-merge flow (no PR) by mergi
 
 ## How to use the current app
 
-This build is an **interactive multi-screen demo shell**:
-- Start on **Splash** and tap **Start**.
-- Use the **Home Dashboard** tiles to open: Analysis, Opening Explorer, Puzzle Trainer, AI Coach, What-If Simulator, and Board Scanner.
-- In each screen, tap action rows (Review/Graph/Start/Scan, etc.) to trigger in-app state transitions (for example Analysis -> Move Review -> Blunder -> Puzzle Trainer).
+This build is an **interactive functional MVP shell**:
+- Start on **Splash** and tap **Open Dashboard**.
+- Use dashboard tiles to open all major screens (Analysis, Move Review, Blunder Trainer, Openings, Puzzle Trainer, Coach, What-If, Scanner).
+- Working local interactions now include depth/multi-PV controls, candidate-line selection, move review classification cards, blunder hint/best-line reveal, opening search + selection, puzzle answer scoring, weekly coach report generation, what-if probability slider, and sample board scan to FEN.
 
-Backend integrations (engines, camera scan, PGN parser, cloud analysis) are still placeholders, but the UI flow is now clickable and navigable end-to-end.
+Cloud engines, real camera OCR, and online imports are still future integrations, but the app is now meaningfully usable locally instead of static cards.
