@@ -3,18 +3,24 @@ package com.chessgpt
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -22,210 +28,269 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            ChessGptApp()
-        }
+        setContent { ChessGptApp() }
     }
 }
 
-data class FeatureSpec(val title: String, val description: String)
+private enum class Screen(val title: String) {
+    Splash("Splash"),
+    Home("Home Dashboard"),
+    Analysis("Game Analysis"),
+    Review("Move Review"),
+    Blunder("Blunder Detected"),
+    Openings("Opening Explorer"),
+    Trainer("Puzzle Trainer"),
+    Coach("AI Coach"),
+    WhatIf("What-If Simulator"),
+    Scanner("Board Scanner")
+}
 
-private val featureSpecs = listOf(
-    FeatureSpec(
-        title = "1) Ultra-Strong Engine Analysis",
-        description = "Stockfish + LCZero pipelines, adjustable depth 20-50+, Multi-PV 3-10, cloud analysis fallback, and optional GPU workers."
-    ),
-    FeatureSpec(
-        title = "2) Human-Readable AI Explanation",
-        description = "Natural language move explanations with tactical motif detection (forks, pins, skewers, discovered attacks, sacrifices) and skill-level modes."
-    ),
-    FeatureSpec(
-        title = "3) Move Classification System",
-        description = "Labels each move from Brilliant to Blunder, plus accuracy score and win-probability graph generation hooks."
-    ),
-    FeatureSpec(
-        title = "4) Blunder Detection + Fix Trainer",
-        description = "Shows punishment lines and converts mistakes into immediate practice puzzles."
-    ),
-    FeatureSpec(
-        title = "5) Opening Intelligence",
-        description = "Opening explorer with master game statistics, engine evals, popularity, and repertoire builder imports from Chess.com/Lichess."
-    ),
-    FeatureSpec(
-        title = "6) Game Style Analysis",
-        description = "Classifies player style and produces strengths, weaknesses, and targeted improvement areas."
-    ),
-    FeatureSpec(
-        title = "7) Tactical Pattern Recognition",
-        description = "Detects motifs like back-rank mate, Greek gift, smothered mate, perpetual check, and zugzwang, then recommends custom puzzles."
-    ),
-    FeatureSpec(
-        title = "8) Video + Board Replay",
-        description = "Animated replay plan with engine arrows, highlights, and square-control heatmap support."
-    ),
-    FeatureSpec(
-        title = "9) Live Game Analyzer",
-        description = "Training-mode live candidate moves, eval bar, and threat alerts with fairness restrictions."
-    ),
-    FeatureSpec(
-        title = "10) Personal AI Coach",
-        description = "Per-game review, personalized lesson recommendations, and weekly progress reports."
-    ),
-    FeatureSpec(
-        title = "11) Puzzle Generator From Your Games",
-        description = "Automatically converts missed opportunities and mistakes into replayable puzzles."
-    ),
-    FeatureSpec(
-        title = "12) Voice Chess Coach",
-        description = "Speech interface for move questions and verbal strategic explanations."
-    ),
-    FeatureSpec(
-        title = "13) Visual Board Insights",
-        description = "Attacked-square heatmap, king safety meter, and piece-activity scoring overlays."
-    ),
-    FeatureSpec(
-        title = "14) Massive Game Database",
-        description = "Schema for grandmaster, engine, and personal games at large scale."
-    ),
-    FeatureSpec(
-        title = "15) Import/Export Support + What-If Simulator",
-        description = "PGN/FEN/Chess960 plus Lichess/Chess.com import and probability-tree what-if simulations."
-    )
+private data class DashboardAction(val label: String, val screen: Screen)
+
+private val dashboardActions = listOf(
+    DashboardAction("Analyze Game", Screen.Analysis),
+    DashboardAction("Opening Explorer", Screen.Openings),
+    DashboardAction("Puzzle Trainer", Screen.Trainer),
+    DashboardAction("AI Coach", Screen.Coach),
+    DashboardAction("What-If Simulator", Screen.WhatIf),
+    DashboardAction("Board Scanner", Screen.Scanner)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChessGptApp() {
-    var selectedFeatureIndex by remember { mutableIntStateOf(0) }
-    var statusText by remember { mutableStateOf("Tap a card or quick action to get started.") }
+    var currentScreen by remember { mutableStateOf(Screen.Splash) }
+    var selectedMove by remember { mutableStateOf("No move selected") }
 
     MaterialTheme {
         Scaffold(
-            topBar = { TopAppBar(title = { Text("Chess GPT") }) }
+            topBar = {
+                TopAppBar(
+                    title = { Text("Chess GPT • ${currentScreen.title}") }
+                )
+            }
         ) { innerPadding ->
-            FeatureList(
-                innerPadding = innerPadding,
-                selectedFeatureIndex = selectedFeatureIndex,
-                statusText = statusText,
-                onQuickAnalyze = {
-                    selectedFeatureIndex = 0
-                    statusText = "Analyze Position selected (UI demo). Engine wiring is the next step."
-                },
-                onOpenPgn = {
-                    selectedFeatureIndex = 14
-                    statusText = "Import PGN selected (UI demo). File picker integration is next."
-                },
-                onCoachReport = {
-                    selectedFeatureIndex = 9
-                    statusText = "Coach Report selected (UI demo). Personalized analytics coming next."
-                },
-                onSelectFeature = { index ->
-                    selectedFeatureIndex = index
-                    statusText = "Selected: ${featureSpecs[index].title}"
-                }
-            )
+            when (currentScreen) {
+                Screen.Splash -> SplashScreen(
+                    padding = innerPadding,
+                    onStart = { currentScreen = Screen.Home }
+                )
+
+                Screen.Home -> HomeDashboard(
+                    padding = innerPadding,
+                    onNavigate = { currentScreen = it }
+                )
+
+                Screen.Analysis -> AnalysisScreen(
+                    padding = innerPadding,
+                    onMovePick = {
+                        selectedMove = it
+                        currentScreen = Screen.Review
+                    }
+                )
+
+                Screen.Review -> MoveReviewScreen(
+                    padding = innerPadding,
+                    selectedMove = selectedMove,
+                    onShowBlunder = { currentScreen = Screen.Blunder }
+                )
+
+                Screen.Blunder -> BlunderScreen(
+                    padding = innerPadding,
+                    onPractice = { currentScreen = Screen.Trainer },
+                    onBestMove = { selectedMove = "Best line: ...Nf6 2. Nc3 d5" }
+                )
+
+                Screen.Openings -> OpeningExplorerScreen(innerPadding)
+                Screen.Trainer -> PuzzleTrainerScreen(innerPadding)
+                Screen.Coach -> CoachScreen(innerPadding)
+                Screen.WhatIf -> WhatIfScreen(innerPadding)
+                Screen.Scanner -> ScannerScreen(innerPadding)
+            }
         }
     }
 }
 
 @Composable
-private fun FeatureList(
-    innerPadding: PaddingValues,
-    selectedFeatureIndex: Int,
-    statusText: String,
-    onQuickAnalyze: () -> Unit,
-    onOpenPgn: () -> Unit,
-    onCoachReport: () -> Unit,
-    onSelectFeature: (Int) -> Unit
-) {
+private fun SplashScreen(padding: PaddingValues, onStart: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(Color(0xFF091730), Color(0xFF10254A), Color(0xFF08101F))
+                )
+            )
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("♞", style = MaterialTheme.typography.displayLarge, color = Color(0xFF8EC5FF))
+        Text("Chess GPT", style = MaterialTheme.typography.headlineMedium, color = Color.White)
+        Text(
+            "Analyze like a grandmaster",
+            color = Color(0xFFC0D8FF),
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Spacer(Modifier.height(20.dp))
+        Button(onClick = onStart) { Text("Start") }
+    }
+}
+
+@Composable
+private fun HomeDashboard(padding: PaddingValues, onNavigate: (Screen) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding),
-        contentPadding = PaddingValues(16.dp),
+            .padding(padding)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item {
-            Text(
-                text = "Interactive roadmap demo",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        item { Text("Quick Actions", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(onClick = onQuickAnalyze, modifier = Modifier.weight(1f)) {
-                    Text("Analyze")
+        items(dashboardActions.chunked(2)) { rowActions ->
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                rowActions.forEach { action ->
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onNavigate(action.screen) },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF132744))
+                    ) {
+                        Column(Modifier.padding(14.dp)) {
+                            Text(action.label, color = Color.White, fontWeight = FontWeight.SemiBold)
+                            Text("Open", color = Color(0xFF8EC5FF), modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
                 }
-                Button(onClick = onOpenPgn, modifier = Modifier.weight(1f)) {
-                    Text("Import PGN")
-                }
-                Button(onClick = onCoachReport, modifier = Modifier.weight(1f)) {
-                    Text("Coach")
-                }
+                if (rowActions.size == 1) Spacer(modifier = Modifier.weight(1f))
             }
-        }
-
-        item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Status", fontWeight = FontWeight.SemiBold)
-                    Text(statusText, modifier = Modifier.padding(top = 4.dp))
-                }
-            }
-        }
-
-        itemsIndexed(featureSpecs) { index, feature ->
-            FeatureCard(
-                featureSpec = feature,
-                isSelected = index == selectedFeatureIndex,
-                onClick = { onSelectFeature(index) }
-            )
         }
     }
 }
 
 @Composable
-private fun FeatureCard(featureSpec: FeatureSpec, isSelected: Boolean, onClick: () -> Unit) {
+private fun AnalysisScreen(padding: PaddingValues, onMovePick: (String) -> Unit) {
+    val candidates = listOf("1. Nf3 (+1.45)", "2. d4 (+0.91)", "3. Bc4 (+0.70)")
+    ScreenShell(padding, "Engine analysis ready. Tap a candidate move.") {
+        candidates.forEach { move ->
+            ActionRow(label = move, action = "Review") { onMovePick(move) }
+        }
+    }
+}
+
+@Composable
+private fun MoveReviewScreen(padding: PaddingValues, selectedMove: String, onShowBlunder: () -> Unit) {
+    ScreenShell(padding, "Selected move: $selectedMove") {
+        ActionRow("Classification: Inaccuracy", "Why?") { }
+        ActionRow("Win probability: 56%", "Graph") { }
+        ActionRow("Coach says king-side is weakened", "See blunder") { onShowBlunder() }
+    }
+}
+
+@Composable
+private fun BlunderScreen(padding: PaddingValues, onPractice: () -> Unit, onBestMove: () -> Unit) {
+    ScreenShell(padding, "Black can win material in 3 moves.") {
+        ActionRow("Hint", "Show") { }
+        ActionRow("Show Best Move", "Play line") { onBestMove() }
+        ActionRow("Practice Puzzle", "Start") { onPractice() }
+    }
+}
+
+@Composable
+private fun OpeningExplorerScreen(padding: PaddingValues) {
+    ScreenShell(padding, "Sicilian Defense — win rates and popularity") {
+        ActionRow("1. e4 c5", "47% white") { }
+        ActionRow("2. Nf3 d6", "Popular") { }
+        ActionRow("3. Bb5+", "Engine: slight edge") { }
+    }
+}
+
+@Composable
+private fun PuzzleTrainerScreen(padding: PaddingValues) {
+    ScreenShell(padding, "Generated from your mistakes") {
+        ActionRow("Puzzle #1: Find winning tactic", "Solve") { }
+        ActionRow("Puzzle #2: Punish blunder", "Solve") { }
+        ActionRow("Accuracy trend", "View chart") { }
+    }
+}
+
+@Composable
+private fun CoachScreen(padding: PaddingValues) {
+    ScreenShell(padding, "Strengths: opening play. Weakness: rook endgames.") {
+        ActionRow("Recommended: Rook endgames", "Start plan") { }
+        ActionRow("Recommended: Basic forks", "Start plan") { }
+    }
+}
+
+@Composable
+private fun WhatIfScreen(padding: PaddingValues) {
+    ScreenShell(padding, "What if I sacrifice the knight?") {
+        ActionRow("Line A", "42% success") { }
+        ActionRow("Line B", "33% success") { }
+        ActionRow("Line C", "25% success") { }
+    }
+}
+
+@Composable
+private fun ScannerScreen(padding: PaddingValues) {
+    ScreenShell(padding, "Board scanner placeholder") {
+        ActionRow("Use camera", "Scan") { }
+        ActionRow("Manual board edit", "Open") { }
+    }
+}
+
+@Composable
+private fun ScreenShell(padding: PaddingValues, subtitle: String, content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(subtitle, style = MaterialTheme.typography.bodyLarge)
+        content()
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun ActionRow(label: String, action: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF16263D))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = featureSpec.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = featureSpec.description,
-                modifier = Modifier.padding(top = 6.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            if (isSelected) {
-                Text(
-                    text = "Selected",
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(label, modifier = Modifier.weight(1f), color = Color.White)
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFF264F84), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                Text(action, color = Color(0xFFBFDFFF))
             }
         }
     }

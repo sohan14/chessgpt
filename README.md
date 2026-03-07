@@ -49,9 +49,9 @@ In those cases you can still use a direct commit-and-merge flow (no PR) by mergi
 
 ## How to use the current app
 
-This build is an **interactive demo shell** (not full engine implementation yet):
-- Tap **Analyze**, **Import PGN**, or **Coach** buttons at the top to switch the current focus area.
-- Tap any roadmap card to select it.
-- The **Status** panel updates to show what you selected.
+This build is an **interactive multi-screen demo shell**:
+- Start on **Splash** and tap **Start**.
+- Use the **Home Dashboard** tiles to open: Analysis, Opening Explorer, Puzzle Trainer, AI Coach, What-If Simulator, and Board Scanner.
+- In each screen, tap action rows (Review/Graph/Start/Scan, etc.) to trigger in-app state transitions (for example Analysis -> Move Review -> Blunder -> Puzzle Trainer).
 
-These controls make the UI clickable now while backend chess logic is implemented incrementally.
+Backend integrations (engines, camera scan, PGN parser, cloud analysis) are still placeholders, but the UI flow is now clickable and navigable end-to-end.
