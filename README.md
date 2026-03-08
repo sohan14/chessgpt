@@ -1,68 +1,72 @@
 # Chess GPT
 
-Android project scaffold for **Chess GPT** with automated APK building via GitHub Actions.
+Offline Android chess analyzer built with **Kotlin + Jetpack Compose + MVVM + Compose Navigation**.
 
-## APK Automation
+## Implemented architecture
 
-A workflow is included at `.github/workflows/build-apk.yml`.
+- **MVVM** with `ChessViewModel` state driving UI updates.
+- **Compose Navigation** routes:
+  - `home_screen`
+  - `result_screen`
+  - `review_screen`
+  - `analysis_screen`
+  - `settings_screen`
+  - plus `blunder_screen`, `import_pgn_screen`, `puzzle_screen`.
+- **Engine layer** via `ChessEngine` / `StockfishEngine` interface for:
+  - evaluate position
+  - suggest best move
+  - detect blunder
 
-It will:
-1. Install JDK 17 + Android SDK.
-2. Install required SDK components (`platforms;android-34`, `build-tools;34.0.0`, etc.) and accept licenses.
-3. Build the debug APK.
-4. Rename output to **`chess-gpt.apk`**.
-5. Upload it as the `chess-gpt-apk` artifact.
+## Functional screens
 
-## Product Feature Blueprint Included in App UI
+1. **Home Screen**
+   - Analyze Game
+   - Import PGN
+   - Puzzle Trainer
+   - Settings
+   - Game Result
 
-The app includes an in-app roadmap card list covering:
+2. **Game Result Screen**
+   - Game result text
+   - Move-quality statistics:
+     Brilliant, Great, Best, Excellent, Good, Book, Inaccuracy, Mistake, Miss, Blunder
+   - Buttons: Start Review, New Game, Back
 
-1. Ultra-Strong Engine Analysis (Stockfish, LCZero, depth control, Multi-PV, cloud/GPU).
-2. Human-readable AI explanations and tactical motif detection.
-3. Move classification, win probability, and accuracy scoring.
-4. Blunder detection with fix trainer and punishment lines.
-5. Opening intelligence + repertoire builder.
-6. Style analysis with strengths/weaknesses.
-7. Tactical pattern recognition and puzzle recommendations.
-8. Video + board replay overlays.
-9. Live analyzer in training mode.
-10. Personal AI coach reports.
-11. Puzzle generation from your games.
-12. Voice chess coach.
-13. Visual board insights (heatmaps and meters).
-14. Massive game database support.
-15. Import/export + AI "What If" simulator.
+3. **Game Review Screen**
+   - Chessboard
+   - Evaluation bar
+   - Move list
+   - Buttons: Previous move, Next move, Show best move
+   - Selecting moves updates board dynamically
 
-## Notes
+4. **Move Analysis Screen**
+   - Move classification
+   - Best move suggestion
+   - Engine evaluation
+   - Explanation text
+   - Highlighting squares and arrows
+   - Buttons: Show best move, Next move, Retry move
 
-- This repository now includes a functional Android starter app and CI pipeline.
-- The listed advanced chess capabilities are represented as a structured roadmap in the UI and are ready to be implemented module-by-module.
+5. **Blunder Explanation Screen**
+   - Why move was bad
+   - Opponent threat
+   - Better move
+   - Strategic idea
+   - Best-move highlight
 
-## Troubleshooting: "failed to create PR"
+6. **Settings Screen**
+   - Engine depth
+   - Board theme
+   - Piece style
 
-If PR creation fails in an automation environment, the usual causes are:
-- no Git remote is configured for the repository,
-- branch permissions block PR creation, or
-- the token used by automation lacks PR scopes.
+## Offline support
 
-In those cases you can still use a direct commit-and-merge flow (no PR) by merging the working branch into your target branch in Git.
+The app works fully offline.
+Engine integration is structured through a `StockfishEngine` service layer and currently runs an offline local evaluator/suggester implementation so the app remains fully usable without network.
 
-## How to use the current app
+## CI APK
 
-This build is an **interactive functional MVP shell**:
-- Start on **Splash** and tap **Open Dashboard**.
-- Use dashboard tiles to open all major screens (Analysis, Move Review, Blunder Trainer, Openings, Puzzle Trainer, Coach, What-If, Scanner).
-- Working local interactions now include depth/multi-PV controls, candidate-line selection, move review classification cards, blunder hint/best-line reveal, opening search + selection, puzzle answer scoring, weekly coach report generation, what-if probability slider, and sample board scan to FEN.
-
-Cloud engines, real camera OCR, and online imports are still future integrations, but the app is now meaningfully usable locally instead of static cards.
-
-
-## Game Review UI
-
-The app now centers on a chess.com-style **Game Review** flow with:
-- review summary stats (accuracy, move-quality table, game rating),
-- board review screen with coach bubble + eval badge,
-- move strip navigation (previous/next),
-- actions for Show, Best, Retry, and Next.
-
-This is a local-functional UI implementation and can be wired to real engine APIs in the next step.
+GitHub workflow: `.github/workflows/build-apk.yml`
+- builds debug APK
+- renames to `chess-gpt.apk`
+- uploads artifact `chess-gpt-apk`
