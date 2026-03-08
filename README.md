@@ -55,3 +55,14 @@ This build is an **interactive functional MVP shell**:
 - Working local interactions now include depth/multi-PV controls, candidate-line selection, move review classification cards, blunder hint/best-line reveal, opening search + selection, puzzle answer scoring, weekly coach report generation, what-if probability slider, and sample board scan to FEN.
 
 Cloud engines, real camera OCR, and online imports are still future integrations, but the app is now meaningfully usable locally instead of static cards.
+
+
+## Game Review UI
+
+The app now centers on a chess.com-style **Game Review** flow with:
+- review summary stats (accuracy, move-quality table, game rating),
+- board review screen with coach bubble + eval badge,
+- move strip navigation (previous/next),
+- actions for Show, Best, Retry, and Next.
+
+This is a local-functional UI implementation and can be wired to real engine APIs in the next step.
